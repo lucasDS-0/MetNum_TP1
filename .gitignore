@@ -37,3 +37,17 @@
 *.out
 *.expected
 *.csv
+
+# LaTeX debug files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.pdf
+*.gz
+*.loa
+*.toc
+
+# Project files
+.ipynb_checkpoints
+.vscode

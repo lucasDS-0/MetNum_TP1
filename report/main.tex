@@ -1,0 +1,129 @@
+
+% *****************Estilos de escritura**************** %
+
+\documentclass[a4paper]{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{charter}   % tipografia
+\usepackage{graphicx}
+\usepackage{paralist} %itemize inline
+
+\usepackage[colorlinks = true]{hyperref}
+\usepackage{comment}
+\usepackage{mathtools}  
+\usepackage{xfrac}
+
+\usepackage{algorithmicx, algpseudocode, algorithm}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{multicol}
+\usepackage{amssymb}
+
+\usepackage{xcolor} %colores
+
+\usepackage{epsfig}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{svg}
+
+\renewcommand*\contentsname{Contenidos}
+
+% ******************Formato de las páginas************** %
+
+\usepackage[paper=a4paper, left=1.5cm, right=1.5cm, bottom=2.5cm, top=2.5cm]{geometry}
+\usepackage{style/caratula}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ - #1}}
+
+\fancyhf{}
+
+\fancyhead[LO]{Sección \rightmark} % \thesection\ 
+
+\fancyfoot[RO]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+\renewcommand{\baselinestretch}{1.1}  % line spacing
+
+\providecommand{\keywords}[1]{\textbf{\textit{Palabras clave:}} #1}
+
+% ******************************************************** %
+
+\begin{document}
+
+\titulo{Métodos Númericos}
+
+\fecha{}
+
+\materia{Trabajo Práctico 1}
+\submateria{Primer Cuatrimestre de 2022}
+
+\integrante{Lucas Fabrizio Di Salvo}{446/18}{lucasdisalvo@gmail.com}
+\integrante{Valeria Arrosio}{*/*}{***@***}
+\integrante{Camila Rosario Camaño}{*/*}{***@***}
+
+\maketitle
+
+\newpage
+
+\thispagestyle{empty}
+
+\thispagestyle{empty}
+\vfill
+
+\begin{abstract}
+En el siguiente informe nos proponemos encontrar una forma de encontrar una isoterma de 500°C dentro de las paredes de un alto horno con el objetivo de determinar el nivel de peligrosidad de la estructura de las paredes.
+
+\
+
+Utilizaremos una ecuación de calor (ecuación de Laplace), la cual todos los puntos del horno deben cumplir, pero para facilitar los cálculos, construiremos una discretización de la pared del horno y de la propia ecuación. Finalizado este proceso, organizaremos las ecuaciones resultantes en un sistema de ecuaciones para reescribirlo como una matriz. Luego, utilizando eliminación Gaussiana y factorización LU, resolveremos el sistema para obtener el valor de todas las temperaturas internas y poder estimar la posición de la isoterma buscada.
+
+\
+
+Generaremos 3 instancias de datasets con distintos objetivos: conseguir una buena discretización que no tenga gran costo computacional, decidir qué método es el más eficiente, y observar qué sucede en un sistema en peligro.
+
+\
+
+Habiendo encontrado una discretización satisfactoria y el método más eficiente, nos disponemos a ver cómo se comporta la isoterma cuando en ciertos puntos de la pared externa se registran temperaturas más elevadas que en otros.
+
+\end{abstract} 
+\begin{center}
+\keywords{Análisis Numérico, Eliminación Gaussiana, Factorización LU}%also speedrun
+    
+\end{center}
+
+\thispagestyle{empty}
+\vspace{1cm}
+\tableofcontents
+\newpage
+
+\section{Introducción}
+\label{section:introduccion}
+\input{pages/intro}
+\newpage
+
+\section{Desarrollo}
+\label{section:desarrollo}
+\input{pages/desarrollo}
+\newpage
+
+\section{Resultados}
+\label{section:resultados}
+\input{pages/resultados}
+\newpage
+
+\section{Conclusiones}
+\label{section:conclusiones}
+\input{pages/conclusion}
+
+\section{Referencias} 
+\label{section:referencias}
+\begin{enumerate}
+    \item Alto horno: \href{https://es.wikipedia.org/wiki/Alto_horno}{Link Wikipedia}
+    \item Isoterma: \href{https://es.wikipedia.org/wiki/Isoterma}{Link Wikipedia}
+    \item Algoritmos y propiedades: Análisis Numérico, Richard L. Burden, et.al., Cenage Learning. 
+\end{enumerate}
+\end{document}

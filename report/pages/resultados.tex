@@ -1,0 +1,264 @@
+\subsection{Análisis del Experimento 1}
+
+Observemos los gráficos de calor de los hornos resultantes:
+
+\
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.3\linewidth}
+        \centering
+        \includesvg[scale=0.35]{img/EXP1/D1_4_40_calor}
+        \caption{Gráfico de calor con $m = 4$.}
+        \label{fig:D1_4_40}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.3\linewidth}
+        \centering
+        \includesvg[scale=0.35]{img/EXP1/D1_12_40_calor}
+        \caption{Gráfico de calor con $m = 12$}
+        \label{fig:D1_12_40}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.3\linewidth}
+        \centering
+        \includesvg[scale=0.35]{img/EXP1/D1_40_40_calor}
+        \caption{Gráfico de calor con $m = 40$}
+        \label{fig:D1_50_100}
+    \end{subfigure}
+    \caption{Gráficos de nitidez de la discretización (en grados Celsius).}
+    \label{fig:D1_nitidez}
+\end{figure}
+
+
+Notamos que a medida que incrementamos el valor de $m$ los gráficos se hacen cada vez más detallados, pero ello aún no es lo suficientemente convincente para seleccionar el $m$ adecuado y dichos gráficos no son los indicados para ilustrar la precisión que ofrece cada discretización. 
+
+\
+
+Para ver a partir de qué momento hacer una discretización más fina no vale la pena fuimos comparando la norma 2 de los radios donde se ubicaba la isoterma hallada en cada instancia con la de la instancia anterior. 
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[scale=0.49]{img/EXP1/grafico_diferencias.png}
+        \label{fig:diferencias}
+        \caption{Diferencias de de las normas entre isotermas}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includesvg[scale=0.49]{img/EXP1/D1_30_40_calor}
+        \caption{Gráfico de calor con $m = 30$}
+        \label{fig:D1_30_40}
+    \end{subfigure}
+    \caption{Gráfico de diferencias entre radios y gráfico de calor del radio elegido.}
+    \label{fig:modelo_elegido}
+\end{figure}
+
+Se puede notar que a partir de un valor $20 \leq m \leq 30$, ya no se logra un incremento considerable de la precisión. Con esto concluimos que a partir de $m = 30$ con $n = 40$ la diferencia entre las posiciones de las isotermas se vuelve lo suficientemente pequeña como para poder tener una discretización lo suficientemente certera y hacer experimentos cómodamente.
+
+\
+
+Dicho esto, podríamos pensar en situaciones en donde esta propuesta falla. Por ejemplo, ¿qué pasaría si hay una explosión no muy grande en un punto específico del horno? ¿Sería visible en la discretización propuesta? Tal vez un cambio no muy significativo en las temperaturas no sea detectado. Luego, ¿cómo se arreglaría este problema? Si aumentáramos la cantidad de radios en vez de ángulos quizás se solucione. Esta línea de pensamiento no la continuaremos en este informe, pero podría ser algo a incluir en un futuro trabajo.
+
+\newpage
+
+\subsection{Análisis del Experimento 2}
+
+Haciendo uso de la discretización encontrada en el experimento previo, es de interés distinguir qué tanto tiempo consumen los algoritmos de eliminación Gaussiana y factorización LU. Cada instancia del horno fue calculada 5 veces, por lo que graficaremos las medias de los tiempos que tardó cada una con sus desvíos. 
+
+\
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.45\linewidth}
+        \centering
+        \includegraphics[scale=0.45]{img/EXP2/tiempos_gauss.png}
+        \caption{Gauss}
+        \label{fig:tiempo_gauss}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\linewidth}
+        \centering
+        \includegraphics[scale=0.45]{img/EXP2/tiempos_lu.png}
+        \caption{LU}
+        \label{fig:tiempo_lu}
+    \end{subfigure}
+    \caption{Scatterplots de las medias de los tiempos para cada método.}
+\end{figure}
+
+\
+
+Analizaremos con más detalle los tiempos de cómputo de factorización LU, quitando la primera instancia:
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.7\linewidth}
+        \centering
+        \includegraphics[scale=0.7]{img/EXP2/tiempos_lu_acercado.png}
+        \label{fig:tiempo_lu_upclose}
+    \end{subfigure}
+    \caption{Scatterplot de factorización LU sin la primera instancia}
+\end{figure}
+
+
+Es posible observar que una única primer instancia del algoritmo de factorización LU tiene un tiempo de computo elevado, mientras que las sucesivas instancias requieren un tiempo de cómputo despreciable en comparación. Por otro lado, se puede ver que el algoritmo de eliminación Gaussiana requiere alrededor de 7 segundos para cada instancia luego de la primera. Contrastándolo con LU, este último tarda al rededor de 20 milisegundos, una vez computada la factorización a través de Gauss. 
+
+\newpage
+
+Analizando ambos métodos en un mismo gráfico:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.7\linewidth}
+        \centering
+        \includegraphics[scale=0.7]{img/EXP2/tiempos_gauss_lu.png}
+        \label{fig:tiempo_gauss_lu}
+    \end{subfigure}
+    \caption{Comparación de tiempo entre Gauss y LU}
+\end{figure}
+
+Aquí se puede observar con más claridad la gran diferencia entre Gauss y LU. Con esto, es claro que cuando se requiere trabajar sobre más de una instancia con un mismo sistema, la \emph{Factorización LU} resulta mucho menos costosa. Mientras que si sólo se utiliza una única instancia (es decir, se requiere resolver un sistema una única vez), es recomendable utilizar la \emph{Eliminación Gaussiana}.
+
+\
+
+Reflexionando sobre los resultados, no es sorprendente ver que LU es mucho más rápido que Gauss. Conocíamos el tiempo que iba a tardar cada uno en términos computacionales, por lo que no esperábamos resultados distintos. Lo que sí nos impactó fue la gran diferencia de tiempo entre un método y otro a la hora de probarlos. No pensamos que el cambio sería tan grande: Gauss tarda alrededor de 7 segundos para cada instancia, mientras que LU tarda menos de un segundo. Esto da cuenta de lo importante que es analizar los tiempos de cómputo de un algoritmo y tener en cuenta los recursos disponibles.  
+
+\subsection{Análisis del Experimento 3}
+
+\subsubsection{Experimento 3.A}
+
+Observemos los gráficos de la isoterma para los resultados del experimento 3 a medida que las temperaturas van aumentando hacia una mitad del horno:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_0_isoterma}
+        \caption{Gráfico de la isoterma en la instancia 1.}
+        \label{fig:D3_40_80_0_isoterma}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_15_isoterma}
+        \caption{Gráfico de la isoterma en la instancia 16.}
+        \label{fig:D3_40_80_15_isoterma}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_31_isoterma}
+        \caption{Gráfico de la isoterma en la instancia 32.}
+        \label{fig:D3_40_80_31_isoterma}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_49_isoterma}
+        \caption{Gráfico de la isoterma en la instancia 50.}
+        \label{fig:D3_40_80_49_isoterma}
+    \end{subfigure}
+    \caption{Gráficos de las isotermas.}
+    \label{fig:D3_isotermas}
+\end{figure}
+
+Podemos observar que hay una deformación de la isoterma, sin embargo, esta es diferente a la que se esperaba. La isoterma avanza hacia la mitad inferior del horno y mantiene una forma "circular" a diferencia de la forma ovalada que esperábamos. La razón por la cual mantiene su silueta es porque armamos el dataset de manera tal que todas las temperaturas externas de una mitad del horno incrementan uniformemente, por lo que la isoterma mantiene en general su estructura.
+
+\
+Además, podemos notar que la posición de la isoterma en el segundo gráfico  es casi igual a su posición en el tercero. Con esta observación, podríamos concluir que a partir de cierto punto, aunque las temperaturas continúen aumentando, la isoterma no cambia de forma. 
+\
+
+Por otra parte, si tomamos en cuenta nuestra definición de peligrosidad, nos encontramos frente a un sistema altamente peligroso, en donde la isoterma se encuentra en todo el borde de una mitad de la pared exterior. 
+
+\
+
+Ahora analicemos los gráficos de calor correspondientes:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_0_calor}
+        \caption{Gráfico de la calor en la instancia 1.}
+        \label{fig:D3_40_80_0_calor}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_15_calor}
+        \caption{Gráfico de la calor en la instancia 16.}
+        \label{fig:D3_40_80_15_calor}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_31_calor}
+        \caption{Gráfico de la calor en la instancia 32.}
+        \label{fig:D3_40_80_31_calor}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\linewidth}
+        \centering
+        \includegraphics[scale=0.24]{img/EXP3/D3_40_80_49_calor}
+        \caption{Gráfico de la calor en la instancia 50}
+        \label{fig:D3_40_80_49_calor}
+    \end{subfigure}
+    \caption{Gráficos de calor en grados Celcius.}
+    \label{fig:D3_calor}
+\end{figure}
+
+Aquí podemos detallar lo comentado anteriormente: el incremento de calor es parejo a lo largo de la mitad inferior. A su vez, podemos notar con facilidad las dos mitades: los bordes de una mitad  presentan temperaturas de 200°C y la otra 800°C. En la vida real, esto no sería posible, habría un gradiente de temperaturas entre las mitades. 
+
+\
+
+Si nos detenemos por un minuto y pensamos en este experimento más detalladamente, los gráficos muestran una situación en donde toda una mitad del horno estaría presentando temperaturas de alrededor de 500°C. El límite de resistencia al calor de algunos materiales no supera los 450°C, mientras que otros resisten hasta 1315°C, por lo que si pensamos que los materiales no son los mejores, no estaríamos equivocados en asumir que la pared se esta destruyendo. En tiempos modernos, teniendo en cuenta el avance tecnológico y los controles actuales en mega construcciones, es algo casi imposible. El único motivo por el cual podría darse esta situación seria si estuviésemos frente a un horno muy primitivo, y aún así sería complicado sabiendo que los altos hornos más antiguos se datan desde 1000-500 antes de Cristo, y estamos en el 2022. Dicho esto, una situación más realista sería un fallo en un pequeño sector del horno y no toda una mitad.
+
+\
+
+Teniendo en cuenta lo analizado anteriormente, concluimos que la forma de la isoterma depende de las temperaturas del sistema. A su vez, el dataset que planteamos nos presenta con resultados poco realistas. En un alto horno en la vida real, el cambio de temperaturas se daría con un gradiente mucho más suave que teniendo, por ejemplo, un sensor que registra 200°C al lado de uno que registra 500°C.
+
+\newpage
+
+\subsubsection{Experimento 3.B}
+
+Utilizando el dataset 4, analizaremos las isotermas resultantes:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[scale=0.49]{img/EXP4/D4_30_40_7_isoterma.png}
+        \caption{Isoterma de la instancia 7}
+        \label{fig:iso_3b_7}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[scale=0.49]{img/EXP4/D4_30_40_17_isoterma.png}
+        \caption{Isoterma de la instancia 17}
+        \label{fig:iso_3b_17}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[scale=0.49]{img/EXP4/D4_30_40_29_isoterma.png}
+        \caption{Isoterma de la instancia 29}
+        \label{fig:iso_3b_29}
+    \end{subfigure}
+    \caption{Isotermas de las instancias del horno con sensores defectuosos.}
+    \label{fig:isos_3b}
+\end{figure}
+
+Podemos observar que en determinados puntos de cada isoterma se perciben deformaciones de la misma. Dichos puntos coinciden con las posiciones de los sensores defectuosos que contemplan un error más amplio que el esperado de un sensor que funciona correctamente. 
+
+\
+ 
+De esta forma, se perciben estos cambios de la isoterma erróneos a través de las distintas instancias, cuando en verdad la isoterma no estaría sufriendo dichas perturbaciones.
+
+\
+
+A diferencia del experimento 3A, los resultados de este experimento 3B se asemejarían más a lo que puede ocurrir en la realidad. En las instancias que generamos nosotros, ninguno de los hornos entraría dentro de la circunstancia de peligrosidad que habíamos formulado, dado que puede verse que la isoterma obtenida no difiere mucho de la "ideal" isoterma circular. 
+
+\
+
+De todos modos, estos gráficos de la isoterma podrían ayudar a determinar cuál es el problema que se tiene en el alto horno: si los sensores efectivamente están fallados y a eso se deben las detecciones de temperaturas mayores/menores a las que realmente son y el horno se encuentra en buenas condiciones, o si se confirma que los sensores funcionan correctamente, entonces puede ser que haya problemas con la integridad estructural de la pared del alto horno en los lugares donde la isoterma se difiere del círculo que debería ser la isoterma.

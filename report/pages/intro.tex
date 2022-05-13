@@ -1,0 +1,400 @@
+Al trabajar con maquinaria pesada, es de suma importancia  realizar  constantes chequeos de control para evitar accidentes y catástrofes. En el siguiente informe implementaremos dos formas de observar y catalogar el estado de un alto horno. 
+
+\
+
+Un \textbf{alto horno} consiste en una estructura cilíndrica donde en su interior se lleva a cabo la fusión de distintos materiales. A su vez, la \textbf{isoterma} consiste en una indicación de puntos con un mismo valor. Dispondremos de sensores en la pared externa del horno con el objetivo de estimar la posición de la isoterma de 500°C a lo largo del sistema para chequear si la pared externa del horno podría colapsar o no. 
+
+\
+
+\begin{figure}[H] 
+    \centering
+    \begin{subfigure}{0.4\linewidth}
+        \centering
+        \includegraphics[width=3cm]{img/alto_horno_real.png}
+        \caption{Alto horno en la vida real}
+    \end{subfigure}
+    \hfill
+    \centering
+    \begin{subfigure}{0.4\linewidth}
+        \centering
+        \includegraphics[width=5cm]{img/isoterma.png}
+        \caption{Gráfico de una isoterma}
+    \end{subfigure}
+    \label{fig:vida-real}
+    \caption{Imágenes de un alto horno y una isoterma.}
+\end{figure}
+
+\
+
+\subsection{Modelo}
+
+Modelaremos el problema de la siguiente manera: 
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[scale=0.30]{img/alto_horno.png}
+    \caption{ Diagrama del horno}
+    \label{fig:diagrama_horno}
+\end{figure} 
+
+Donde: 
+\begin{itemize}
+    \item $T(r, \theta)$ es la temperatura en el punto dado por las coordenadas polares (r, $\theta$) , con $r$ el radio y $\theta$ el ángulo polar de dicho punto,
+    \item $r_e$ $ \in$ $\mathbb{R}$  es el radio exterior de la pared,
+    \item $r_i$ $\in \mathbb{R}$ es el radio interior de la pared,
+     \item $T_{e}(\theta)$ = $T(r_{e},\theta)$ para todo punto $(r_{e}, \theta)$,
+    \item $T_{i}$ = $T(r,\theta)$ para todo punto $(r, \theta)$ con $ r \leq r_{i}$.
+\end{itemize}
+   Luego, tendremos en cuenta que las temperaturas satisfacen la siguiente ecuación de calor de Laplace:
+
+\begin{equation}\label{ecuacion_calor}
+    \frac{\partial^{2} T(r, \theta)}{\partial r^{2}} + \frac{1}{r} \frac{\partial T(r, \theta)}{\partial r} +
+    \frac{1}{r^{2}} \frac{\partial^{2} T(r, \theta)}{\partial \theta ^{2}} = 0
+\end{equation}
+
+Utilizaremos las fórmulas propuestas en el enunciado para armar un conjunto de ecuaciones lineales sobre las incógnitas $t_{j,k}$, donde $j$ = cantidad de radios,  $k$ = cantidad de ángulos y $t_{j,k}$= $T(r,\theta)$. Entonces, utilizaremos las siguientes ecuaciones:
+
+\begin{equation}\label{ecuacion_segunda_derivada_r}
+    \frac{\partial^{2} T(r, \theta)}{\partial r^{2}}(r_j, \theta_k) \approx  \frac{t_{j-1,k} - 2t_{j,k} + t_{j+1,k}}{\Delta r^{2}}
+\end{equation}
+
+\begin{equation}\label{ecuacion_primera_derivada_r}
+    \frac{\partial T(r, \theta)}{\partial r }(r_j, \theta_k) \approx  \frac{t_{j,k} - t_{j-1,k}}{\Delta r}
+\end{equation}
+
+\begin{equation}\label{ecuacion_segunda_derivada_theta}
+    \frac{\partial T(r, \theta)}{\partial \theta^{2} }(r_j, \theta_k) \approx  \frac{t_{j,k-1} - 2t_{j,k} + t_{j,k+1} }{\Delta \theta^{2} }
+\end{equation}
+
+Realizando los reemplazos correspondientes en la ecuación \ref{ecuacion_calor} con los términos de \ref{ecuacion_segunda_derivada_r}, \ref{ecuacion_primera_derivada_r} y \ref{ecuacion_segunda_derivada_theta}, obtenemos la siguiente ecuación:
+
+\begin{equation}\label{ecuacion_final}
+    (\frac{1}{\Delta r^{2} } - \frac{1}{ r_j \Delta r }) t_{(j-1,k)} +
+    (\frac{-2}{\Delta r^{2} } + \frac{1}{ r_j \Delta r } - \frac{2}{ r_j ^{2} \Delta \theta ^{2} }) t_{(j,k)} +
+    (\frac{1}{\Delta r^{2} }) t_{(j+1,k)} +
+    (\frac{1}{r_{j}^{2} \Delta \theta ^{2} }) t_{(j,k-1)} +
+    (\frac{1}{ r_{j}^{2} \Delta \theta ^{2} }) t_{(j,k+1)} 
+\end{equation}
+
+Observando con cuidado los términos que se repiten, podemos reescribir los coeficientes como:
+
+\begin{center}
+   \textbf{ a} = $\frac{1}{\Delta r^{2}}$ ,\textbf{ b} = $\frac{1}{ r_j \Delta r }$ , \textbf{c} = $\frac{1}{ r_{j}^{2} \Delta \theta ^{2} }$
+\end{center}
+
+Teniendo esto en cuenta, podemos reescribir la ecuación \ref{ecuacion_calor} como:
+
+\begin{equation}\label{ecuacion_coeficientes}
+     (a-b) t_{(j-1,k)} + (-2ab+b-2c) t_{(j,k)} + at_{(j+1,k)} + ct_{(j,k-1)} + ct_{(j,k+1)} = 0
+\end{equation}
+
+Con todo esto, ya tenemos lo necesario para armar el sistema de ecuaciones a resolver: conocemos los valores de las temperaturas de las paredes externas e internas, y a su vez sabemos que las temperaturas interiores cumplen con la ecuación \ref{ecuacion_calor}. 
+
+\
+
+Recopilando toda la información hasta ahora, si tomamos  $n$ cantidad de ángulos y $m+1$ cantidad de radios,  conseguimos la siguiente discretización del horno como una matriz de  $\mathbb{R}^{(m+1)\times n} $:
+
+\
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c| }
+        \hline
+        $r_0,\theta_0$ & $r_0,\theta_1$ & $...$ & $r_0, \theta_n$ \\
+        \hline
+        $r_1,\theta_0$ & $r_1,\theta_1$ & $...$ & $r_1, \theta_n$\\
+        \hline
+        $...$ & $...$ & $...$ & $...$\\
+        \hline
+        $r_{m+1},\theta_0$ & $r_{m+1},\theta_1$ & $...$ & $r_{m+1}, \theta_n$\\
+        \hline
+    \end{tabular}
+\end{center}
+
+\
+
+En donde la primera columna representa las temperaturas de las paredes internas, y la última las temperaturas de las paredes externas. Teniendo en cuenta que estos valores son conocidos, las incógnitas a resolver son "las del medio". 
+
+\
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c| }
+        \hline
+        \color{blue}$r_0,\theta_0$ & $r_0,\theta_1$ & $...$ & $r_0, \theta_{n-1}$ & \color{blue}$r_0, \theta_n$ \\
+        \hline
+        \color{blue}$r_1,\theta_0$ & $r_1,\theta_1$ & $...$ & $r_1, \theta_{n-1}$ & \color{blue}$r_1, \theta_n$\\
+        \hline
+        \color{blue}$...$ & $...$ & $...$ & $...$ & \color{blue}$...$\\
+        \hline
+        \color{blue}$r_{m+1},\theta_0$ & $r_{m+1},\theta_1$ & $...$ & $r_{m+1}, \theta_{n-1}$ & \color{blue}$r_{m+1}, \theta_n$\\
+        \hline
+    \end{tabular}
+\end{center}
+
+\
+
+En total, tendríamos $(m+1)*n$ elementos en la matriz, donde $m+1$ es la cantidad de columnas y $n$ la cantidad de filas. Si quitamos la primera y última columna, tendríamos en total $(m+1-2)*n = (m-1)*n$ incógnitas a resolver, de las cuales ya sabemos que cumplen con la ecuación \ref{ecuacion_calor} y las podríamos calcular.
+
+\
+
+Ahora reescribimos tomando $t_{j,k} = T(r_j,\theta_k)$, con j = 1,...,m+1  y k= 1,...,n-1 en la ecuación \ref{ecuacion_coeficientes}, obteniendo un sistema de la siguiente forma: 
+
+\begin{align*}
+    &(a-b)\cdot t_{01}& &(-2a+b-2c)\cdot t_{11}&  &a \cdot t_{21}& &c  \cdot t_{13}& &c \cdot t_{12}&  &= 0 \\
+    &(a-b)\cdot t_{02}& &(-2a+b-2c)\cdot t_{12}&  &a \cdot t_{22}& &c  \cdot t_{11}& &c \cdot t_{13}&  &= 0 \\
+    &\vdots& &\vdots& &\vdots& &\vdots& &\vdots& &= \vdots \\
+    &(a-b)\cdot t_{j-1,k}& &(-2a+b-2c)\cdot t_{j,k}&  &a \cdot t_{j+1,k}& &c  \cdot t_{j,k-1}& &c \cdot t_{j,k+1}&  &= 0 
+\end{align*}
+
+con el que tendremos la salvedad de que cuando nos encontremos con que alguna incógnita tiene cómo índice la primer fila del horno (la cual queremos omitir del sistema por tener los mismos valores que la última fila del horno), o los índices exceden los ángulos disponibles, realizamos el siguiente mapeo:
+
+\begin{itemize}
+    \item $t_{jk}$ tal que $k = 0$ $~~~~\mapsto ~~ t_{jn}$,
+    \item $t_{jk}$ tal que $k > n$ $~~~~\mapsto ~~ t_{j1}$,
+\end{itemize}
+
+Ahora tomaremos un ejemplo en donde trabajaremos con $n=3$ y $m=3$, lo cual peremitirá realizar la siguiente reescritura del sistema, para obtener el sistema de ecuaciones que queremos resolver:
+
+\
+
+{\tiny
+\begin{align*}
+    &(-2a+b-2c)\cdot t_{11}& &c\cdot t_{12}& &c\cdot t_{13}& &a\cdot t_{21}& &0& &0& &=& -(a-b)\cdot t_{01} \\
+    &c\cdot t_{11}& &(-2a+b-2c)\cdot t_{12}& &c\cdot t_{13}& &0& &a\cdot t_{22}& &0& &=& -(a-b)\cdot t_{02} \\
+    &c\cdot t_{11}& &c\cdot t_{12}& &(-2a+b-2c)\cdot t_{13}& &0& &0& &a\cdot t_{23}& &=& -(a-b)\cdot t_{03} \\
+    &(a-b)\cdot t_{11}& &0& &0& &(-2a+b-2c)\cdot t_{21}& &c\cdot t_{22}& &c\cdot t_{23}& &=& -a\cdot t_{32} \\
+    &~0& &(a-b)\cdot t_{12}& &0& &c\cdot t_{21}& &(-2a+b-2c)\cdot t_{22}& &c\cdot t_{23}& &=& -a\cdot t_{32} \\
+    &~0& &0& &(a-b)\cdot t_{13}& &c\cdot t_{21}& &c\cdot t_{22}& &(-2a+b-2c)\cdot t_{23}& &=& -a\cdot t_{33}
+\end{align*}
+}
+
+\
+
+Resultando en un sistema de tantas filas y columnas como \emph{incógnitas} tengamos en el horno, ubicando las mismas sobre la diagonal, y dejando como termino independiente de cada ecuación los valores que sean \emph{datos}. 
+
+\
+
+En la mayoría de las ecuaciones, el término independiente será cero, pero habrá $2m$ \emph{incógnitas} que se encontrarán al lado de una \emph{pared interior} o de una \emph{pared exterior}, donde dicha información es sabida para la ecuación de calor que respeta ese punto del horno, y se pasa hacia el otro lado de la ecuación multiplicado por el coeficiente que le corresponda, los mismos serán aquellos que tengan un índice para los radios igual a cero (pues se trata de la pared interior), o igual a $m$ (pues se trata de la pared exterior).
+
+\
+
+Adicionalmente, es importante notar que la forma en la que se planteo este nuevo sistema presenta un orden donde primero se presentan los ángulos para el primer radio, luego para el segundo, hasta el último radio previo a la pared exterior. Dicho esto, se puede observar que la matriz presenta una forma de \emph{banda}.
+
+
+\newpage
+
+\subsection{Demostración}
+Luego de este procedimiento, obtenemos un sistema de ecuaciones lineales, con la propiedad de ser una matriz banda. Para su resolución, primero demostraremos que es posible aplicar eliminación Gaussiana sin pivoteo a la matriz.  Antes de llegar esa demostración, primero vamos a ver si la matriz resultante es una matriz estrictamente diagonal dominante. 
+
+\
+
+Sea $A$ una matriz banda como la del sistema propuesto, queremos probar que es $EDD$, es decir, estrictamente diagonal dominante. Si lo fuese, tendría que cumplirse la siguiente condición en cada fila de $A$:
+
+\begin{equation}\label{ecuacion_edd}
+     | a_{ii} | > 
+\sum_{j=1, j \neq i}^{n} |a_{ij}| 
+\end{equation}
+
+\
+
+Sabemos que los coeficientes de la diagonal serán $-2a +b - 2c$, entonces:  
+
+\begin{equation*}
+     | -2a +b - 2c | > 
+\sum_{j=1, j \neq i}^{n} |a_{ij}| 
+\end{equation*}
+\begin{equation*}
+     | -2(a+c) + b | > 
+\sum_{j=1, j \neq i}^{n} |a_{ij}| 
+\end{equation*}
+
+Y por desigualdad triangular tenemos:
+
+\begin{equation*}
+     | -2(a+c) + b | \leq | -2(a+c)| + | b | \leq |-2| |a+c| + | b | \leq 2|a|+ 2|c| +|b|
+\end{equation*}
+
+Ahora analicemos la sumatoria de los coeficientes restantes de los valores de la matriz: si están cerca de la  \textbf{pared interna} van a cumplir con
+\begin{equation*}
+    |c + c +a | =|2c +a | \leq |2c| + |a|, 
+\end{equation*}
+si están en la pared externa van a cumplir con 
+\begin{equation*}
+    | (a-b)  +  c + c | = | a-b + 2c | \leq |  a + (-1)b | + | 2c | = |a|+|-1||b| + |2c| \leq |a| + |b| + |2c|,
+\end{equation*}
+y si están en el interior del horno:
+\begin{equation*}
+    | (a - b) + a + c + c | = | 2 (a+c) -b | \leq |2(a+c)| + |-1| |b| \leq | 2a | + |2c| + |b| .
+\end{equation*}
+
+
+\noindent Volviendo a la ecuación \ref{ecuacion_edd}, reemplacemos los valores para cada caso: 
+
+\
+
+- Pared interna:
+
+\[
+ | -2(a+c) + b | > |2c + a|
+\]
+\[
+2|a|+ 2|c| +|b| \geq | -2(a+c) + b | > |2c| + |a| \geq |2c + a|
+\]
+\[
+2|a|+ 2|c| +|b| > 2|c| + |a| 
+\]
+
+- Pared  externa:
+\[
+ | -2(a+c) + b | > | a - b + 2c |
+\]
+\[
+2|a|+ 2|c| +|b| \geq | -2(a+c) + b | > | a| + | b | + 2|c | \geq | a - b + 2c |
+\]
+\[
+2|a|+ 2|c| +|b| > | a| + | b | + 2|c | 
+\]
+    
+- Dentro del horno:
+\[
+ | -2(a+c) + b | > | a - b + 2c + a |
+\]
+\[
+2|a|+ 2|c| +|b| \geq | -2(a+c) + b | > 2| a| + | b | + 2|c | \geq | a - b + 2c + a |
+\]
+\[
+2|a|+ 2|c| +|b| \geq 2| a| + | b | + 2|c | 
+\]
+
+Teniendo en cuenta el desarrollo, nos encontramos con que la matriz del sistema es \textbf{diagonal dominante (no estrictamente)}. A su vez, sabemos que es una matriz inversible porque el determinante en los $a_{ii}$ $\neq$ 0 ya que eso implicaría que las temperaturas a las cuales se está realizando este producto, serían cero, pero dichas temperaturas son la incógnita en cuestión de cada fila del sistema, y las mismas no pueden ser 0.
+
+\
+
+Ahora, queremos ver si es posible aplicar Gauss sin pivoteo a una matriz \emph{diagonal dominante}. Para ello, vamos a aplicar un paso de Gauss a la matriz y ver cómo quedan los coeficientes. Tomemos una matriz banda $A \in \mathbb{R}^{n \times n}$ :
+
+\begin{align*}
+    &a_{1,1}& &a_{1,2}& &0& &\ldots& &0& &0& &0& \\
+    &a_{2,1}& &a_{2,2}& &a_{2,3}& &\ldots& &0& &0& &0& \\
+    &0& &a_{3,2}& &a_{3,3}& &\ldots& &0& &0& &0& \\
+    &\vdots& &\vdots& &\vdots& &\ddots& &\vdots& &\vdots& &\vdots& \\
+    &0& &0& &0& &\ldots& &a_{n-2,n-2}& &a_{n-2,n-1}& &0& \\
+    &0& &0& &0& &\ldots& &a_{n-1,n-2}& &a_{n-1,n-1}& &a_{n-1,n}& \\
+    &0& &0& &0& &\ldots& &0& &a_{n,n-1}& &a_{n,n}& 
+\end{align*}
+
+\
+
+Si aplicamos el primer paso de Gauss, cada valor $a_{i,j}$ va a tener la forma:
+\[
+    a_{i,j}^{1} = a_{i,j}^{0} - \frac{a_{i,1}^{0}}{a_{1,1}^{0}}\cdot a_{1,j}^{0}
+\]
+    
+Queremos ver si se va a mantener la propiedad de matriz diagonal dominante. Si pasa eso, podemos afirmar que se puede realizar Gauss sin pivoteo. 
+
+\
+
+Teniendo en cuenta la ecuación \ref{ecuacion_edd}, queremos llegar a algo del estilo:
+
+\[
+    \sum_{j=2, j \neq i}^{n} |a_{i,j}^{1}| \leq |a_{i,i}^{1}| 
+\]
+
+Si desarrollamos la primera parte:
+
+\[
+ \sum_{j=2, j \neq i}^{n} |a_{i,j}^{1}| = \sum_{j=2, j \neq i}^{n} |a_{i,j}^{0} - \frac{a_{1,j}^{0}}{a_{1,1}^{0}}\cdot a_{i,1}^{0}| \leq 
+\]
+\[
+\sum_{j=2, j \neq i}^{n} |a_{i,j}^{0}| +  \sum_{j=2, j \neq i}^{n} \frac{|a_{1,j}^{0}|}{|a_{1,1}^{0}|}\cdot |a_{i,1}^{0}| \leq
+\]
+\[
+|a_{i,i}^{0}| - |a_{i,1}^{0}| + \frac{|a_{i,1}^{0}|}{|a_{1,1}^{0}|} \cdot  \sum_{j=2, j \neq i}^{n} |a_{1,j}^{0}| \leq
+\]
+\[
+|a_{i,i}^{0}| - |a_{i,1}^{0}| + |\frac{a_{i,1}^{0}}{a_{1,1}^{0}}| \cdot  (|a_{1,1}^{0} - a_{1,i}^{0}|) =
+\]
+\[
+|a_{i,i}^{0}| - \frac{|a_{i,1}^{0}|\cdot|a_{1,i}^{0}|}{|a_{1,1}^{0}|}, 
+\]
+y como tenemos que 
+\[
+|a_{i,i}^{0}| - \frac{|a_{i,1}^{0}|\cdot|a_{1,i}^{0}|}{|a_{1,1}^{0}|} \leq |a_{i,i}^{0} - \frac{|a_{i,1}^{0}|\cdot|a_{1,i}^{0}|}{|a_{1,1}^{0}|} | ,
+\]
+entonces
+\[
+   \sum_{j=2, j \neq i}^{n} |a_{i,j}^{1}| \leq |a_{i,i}^{0} - \frac{|a_{i,1}^{0}|\cdot|a_{1,i}^{0}|}{|a_{1,1}^{0}|} |. 
+\]
+    
+\noindent Si miramos el último término del resultado
+\[
+    |a_{i,i}^{0} - \frac{|a_{i,1}^{0}|*|a_{1,i}^{0}|}{|a_{1,1}^{0}|} |   =  |a_{i,i}^{1}|,
+\]
+
+\noindent con esto se concluye
+\[
+   \sum_{j=2, j \neq i}^{n} |a_{i,j}^{1}| \leq  |a_{i,i}^{1}|
+\]
+
+\noindent Por lo que la matriz mantiene la propiedad de ser diagonal dominante y se podrá realizar EG sin pivoteo. 
+
+\
+
+\subsection{Métodos númericos utilizados}
+Vamos aplicar eliminación Gaussiana y factorización LU para triangular matrices, resolverlas y luego calcular la isoterma de un horno. A continuación explicaremos los métodos numéricos utilizados, la manera en la que fueron implementados y las consideraciones que tuvimos al armar los datasets. Los métodos mencionados se encuentran en el archivo $algoritmos.cpp$ dentro de la carpeta $src$.
+
+\subsubsection{Eliminación Gaussiana}
+
+Utilizaremos el siguiente pseudocódigo dado en la clase teórica 1 para implementar eliminación Gaussiana:
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\Function{Gauss}{m}
+\For{i = 1...n-1} 
+    \For{j= i+1 ... n}
+        \State $m_{ji}$ = $a_{ji}^{i-1}$ / $a_{ii}^{i-1}$
+        \For{k = i ... n+1}
+            \State $a_{jk}^{i}$ = $a_{jk}^{i-1}$ - $m_{ji} a_{ik}^{i-1}$
+        \EndFor
+    \EndFor
+\EndFor
+\EndFunction
+\end{algorithmic}
+\caption{Algoritmo de eliminación Gaussiana}
+\label{alg:gauss}
+\end{algorithm}
+
+Su implementación es el método \textbf{Gauss}. La función toma como parámetros una matriz $m$ de tamaño $n \times n$ y un vector solución $b$. Tuvimos la idea de acoplar $b$ a la matriz como última columna con el objetivo de ir modificando los valores de $b$ a la par que se triangula la matriz. Esta matriz extendida resultante la utilizaremos luego para resolver el sistema en el método \textbf{resolver\_gauss} explicado más adelante. 
+
+\
+
+Su tiempo de cómputo pertenece a $O(n^3)$ debido a que tiene que debe recalcular los coeficientes una y otra vez, triangulando y resolviendo el sistema para cada instancia.
+
+\newpage
+
+\subsubsection{Factorización LU}
+
+Para factorización LU, nos guiamos con el pseudocódigo del libro \emph{Análisis Numérico}, páginas 392-393 y con el pseudocódigo de Gauss, modificándolo para que guarde los coeficientes calculados en la matriz L. 
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\Function{LU}{U,L}
+\For{i = 1...n-1} 
+    \For{j= i+1 ... n}
+        \State $U_{ji}$ = $a_{ji}^{i-1}$ / $a_{ii}^{i-1}$
+        \For{k = i ... n+1}
+            \State $a_{jk}^{i}$ = $a_{jk}^{i-1}$ - $U_{ji} a_{ik}^{i-1}$
+        \EndFor
+        \State $L_{ji}$ = $U_{ji}$
+    \EndFor
+\EndFor
+\EndFunction
+\end{algorithmic}
+\caption{Algoritmo de factorización LU}
+\label{alg:lu}
+\end{algorithm}
+
+Su implementación es el método \textbf{LU}. Tomamos como parámetros dos matrices $m$, $L$. La matriz $m$ es la matriz a triangular, mientras que la matriz $L$ es una matriz llena de ceros en donde pondremos unos en su diagonal. El algoritmo triangula $m$ y guarda en $L$ los coeficientes que fueron usados. Para resolver el sistema, utilizaremos la función \textbf{resolver\_gauss} detallada en la siguiente parte. 
+
+\
+
+La gracia de este algoritmo es que puede hacer uso de un sistema de coeficientes con un tiempo perteneciente a $O(n^3)$ computado una única vez, y luego resolver dos sistemas en un tiempo perteneciente a $O(n^2)$ para cada instancia sucesiva que haga uso del mismo sistema inicial.
+

@@ -1,0 +1,20 @@
+
+En este trabajo, presentamos dos formas de resolver un sistema de ecuaciones para aplicarlos como métodos de control de un alto horno y realizamos distintos experimentos para ver su comportamiento. 
+
+\
+
+Para la discretización del horno, encontramos que a partir de cierto valor para m y n ya no es conveniente seguir aumentándolos. A su vez, notamos que si tenemos una única instancia de un horno, aplicar Gauss y LU tardan casi lo mismo computacionalmente, pero si queremos analizar varias instancias, LU es muchísimo más óptimo. Por último, el cambio en la posición de la isoterma implica un incremento de las temperaturas hacia las paredes externas, lo cual indicaría que el sistema se encuentra comprometido.
+
+\
+
+Como último punto, a lo largo del informe reflexionamos sobre algunas ideas que podríamos implementar y analizar en un futuro:
+\begin{itemize}
+    \item Testear si nuestra idea de que $r_i$ y $r_e$ no afectan mucho en la discretización,
+    \item Encontrar alguna optimización para la búsqueda de la isoterma,
+    \item  En una de las clases teóricas, vimos que las matrices bandas tienen una propiedad muy particular: Una matriz banda cumple que en su factorización LU, la L es exactamente la  banda inferior con 1s en su diagonal principal, y la U es igual a la banda superior con los valores originales en la diagonal principal. Dicho esto, podríamos pensar en alguna forma de aprovecharlo en los algoritmos,
+    \item Pensar en datasets con incrementos de temperaturas diferentes al propuesto en el experimento 3 y analizar qué sucede,
+    \item Agregar a los notebooks de análisis y ejecución una forma de indicar qué instancia está ejecutando.
+    
+\end{itemize}
+
+

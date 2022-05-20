@@ -1,8 +1,6 @@
 #ifndef ALGORITMOS_H
 #define ALGORITMOS_H
 
-#include <iostream>
-#include <vector>
 #include "auxiliares.h"
 
 using namespace std;

@@ -1,5 +1,4 @@
 #include "algoritmos.h"
-#include <iostream>
 
 using namespace std;
 

@@ -1,6 +1,4 @@
-#include <iostream>
 #include <fstream>
-#include <vector>
 #include <map>
 #include <chrono>
 #include "algoritmos.h"

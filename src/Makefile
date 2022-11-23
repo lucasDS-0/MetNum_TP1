@@ -1,5 +1,5 @@
 #########################################
-# 				CONFIG 					#
+#                CONFIG                 #
 #########################################
 
 PROG = ejecutable
@@ -9,7 +9,7 @@ OBJS = auxiliares.o algoritmos.o main.o
 DEPS = auxiliares.h algoritmos.h 
 
 #########################################
-# 				TARGETS					#
+#               TARGETS                 #
 #########################################
 
 .PHONY: all
@@ -28,7 +28,7 @@ auxiliares.o : auxiliares.cpp $(DEPS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 #########################################
-# 				CLEANING				#
+#                CLEANING               #
 #########################################
 
 .PHONY: clean
